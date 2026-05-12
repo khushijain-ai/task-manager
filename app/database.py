@@ -4,19 +4,21 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
-from .config import settings
 
 load_dotenv()
 
-# 1. Get the raw password from .env
+# Get the password and the base URL from Environment Variables
 raw_password = os.getenv("DB_PASSWORD")
+# We will create a new variable in Render called DATABASE_URL_TEMPLATE
+base_url = os.getenv("DATABASE_URL") 
 
-# 2. "Clean" the password for the URL (URL Encoding)
+if not raw_password or not base_url:
+    raise ValueError("DB_PASSWORD or DATABASE_URL not set in Environment Variables")
+
 safe_password = urllib.parse.quote_plus(raw_password)
 
-# 3. Inject the safe password into the YAML string
-# This replaces 'DB_PASS' with your actual encoded password
-final_url = settings["database_url"].replace("DB_PASS", safe_password)
+# Replace the placeholder in your URL with the safe password
+final_url = base_url.replace("DB_PASS", safe_password)
 
 engine = create_engine(final_url)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
