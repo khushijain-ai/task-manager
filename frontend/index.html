@@ -9,24 +9,24 @@
 <body>
     <div class="container">
         <div class="theme-switcher">
-            <div class="theme-btn" style="background: white;" onclick="setTheme('light')"></div>
-            <div class="theme-btn" style="background: #333;" onclick="setTheme('dark')"></div>
-            <div class="theme-btn" style="background: #bc13fe;" onclick="setTheme('neon-purple')"></div>
+            <div class="theme-btn" data-theme="light" style="background: white;"></div>
+            <div class="theme-btn" data-theme="dark" style="background: #333;"></div>
+            <div class="theme-btn" data-theme="neon-purple" style="background: #bc13fe;"></div>
         </div>
-        
+
         <h1>Task Manager</h1>
-        
+
         <div id="auth-section">
             <input type="email" id="email" placeholder="Email">
             <input type="password" id="password" placeholder="Password">
-            <button onclick="login()" class="primary-btn">Login</button>
-            <button onclick="register()" class="secondary-btn">Register</button>
+            <button id="login-btn" class="primary-btn">Login</button>
+            <button id="register-btn" class="secondary-btn">Register</button>
         </div>
 
         <div id="task-section" style="display:none;">
-            <button onclick="openModal()" class="add-btn">+ Create New Task</button>
+            <button id="open-modal-btn" class="add-btn">+ Create New Task</button>
             <ul id="task-list"></ul>
-            <button onclick="logout()" class="logout-btn">Logout</button>
+            <button id="logout-btn" class="logout-btn">Logout</button>
         </div>
     </div>
 
@@ -35,15 +35,15 @@
             <h2>Add New Task</h2>
             <input type="text" id="task-title" placeholder="What needs to be done?">
             <textarea id="task-desc" placeholder="Add a description..."></textarea>
-            
+
             <div class="modal-field">
                 <label>Deadline:</label>
                 <input type="datetime-local" id="task-deadline">
             </div>
-            
+
             <div class="modal-buttons">
-                <button onclick="createTask()" class="primary-btn">Save Task</button>
-                <button onclick="closeModal()" class="cancel-btn">Cancel</button>
+                <button id="save-task-btn" class="primary-btn">Save Task</button>
+                <button id="cancel-modal-btn" class="cancel-btn">Cancel</button>
             </div>
         </div>
     </div>
