@@ -31,45 +31,6 @@ async function login() {
     } else { alert("Login failed!"); }
 }
 
-async function register() {
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-
-    if (!email || !password) {
-        alert("Please fill in both fields");
-        return;
-    }
-
-    try {
-        console.log("Attempting to register:", email);
-        // Added a trailing slash or removed it to match your FastAPI router exactly
-        const response = await fetch(`${API_URL}/register`, {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                email: email, // Matches UserCreate schema
-                password: password
-            })
-        });
-
-        const data = await response.json();
-        console.log("Server Response:", data);
-
-        if (response.ok) {
-            alert("Registration successful! You can now login.");
-        } else {
-            // This will tell us if it's a 422 (validation error) or 400
-            alert("Registration failed: " + JSON.stringify(data.detail));
-        }
-    } catch (error) {
-        console.error("Connection Error:", error);
-        alert("Could not connect to the server. Check your Internet or Render URL.");
-    }
-}
-
 // --- TASK CRUD ---
 async function showTasks() {
     document.getElementById('auth-section').style.display = 'none';
@@ -155,3 +116,53 @@ function logout() { localStorage.clear(); location.reload(); }
 const savedTheme = localStorage.getItem('theme') || 'light';
 setTheme(savedTheme);
 if (token) showTasks();
+
+async function register() {
+    const emailField = document.getElementById('email');
+    const passwordField = document.getElementById('password');
+
+    if (!emailField || !passwordField) {
+        console.error("Email or Password fields not found in HTML");
+        return;
+    }
+
+    const email = emailField.value;
+    const password = passwordField.value;
+
+    if (!email || !password) {
+        alert("Please fill in both fields");
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_URL}/register`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                email: email,
+                password: password
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            alert("Registration successful! You can now login.");
+            // Optional: Clear fields after success
+            emailField.value = '';
+            passwordField.value = '';
+        } else {
+            // This captures the 422 error or "User already exists"
+            alert("Registration failed: " + (data.detail || "Invalid data"));
+            console.log("Error details:", data);
+        }
+    } catch (error) {
+        console.error("Connection Error:", error);
+        alert("Could not connect to the server.");
+    }
+}
+
+// CRITICAL: Make sure the function is available globally for the HTML onclick
+window.register = register;
