@@ -61,7 +61,7 @@ input, textarea { width: 100%; padding: 12px; margin-bottom: 15px; border-radius
 /* Info Button Style */
 .info-btn {
     background: #3498db; /* Bright Blue */
-    color: white;
+    color: black;
     border: none;
     border-radius: 50%; /* Circular button */
     width: 28px;
