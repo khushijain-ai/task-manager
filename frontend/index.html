@@ -4,70 +4,157 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Task Manager Pro</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&family=Lato:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <div class="theme-switcher">
-            <div class="theme-btn" data-theme="light" style="background: white;"></div>
-            <div class="theme-btn" data-theme="dark" style="background: #333;"></div>
-            <div class="theme-btn" data-theme="neon-purple" style="background: #bc13fe;"></div>
+
+    <!-- ── SIDEBAR ── -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <span class="sidebar-title">⚙️ Settings</span>
+            <button class="sidebar-close" id="sidebar-close">✕</button>
         </div>
 
-        <h1>Task Manager</h1>
-
-        <div id="auth-section">
-            <input type="email" id="email" placeholder="Email">
-            <input type="password" id="password" placeholder="Password">
-            <button id="login-btn" class="primary-btn">Login</button>
-            <button id="register-btn" class="secondary-btn">Register</button>
+        <div class="sidebar-section">
+            <p class="sidebar-label">Theme</p>
+            <div class="theme-options">
+                <button class="theme-opt" data-theme="light">☀️ Light</button>
+                <button class="theme-opt" data-theme="dark">🌙 Dark</button>
+                <button class="theme-opt" data-theme="neon-purple">💜 Neon</button>
+                <button class="theme-opt" data-theme="ocean">🌊 Ocean</button>
+                <button class="theme-opt" data-theme="rose">🌸 Rose</button>
+            </div>
         </div>
 
+        <div class="sidebar-section">
+            <p class="sidebar-label">Font Family</p>
+            <select id="font-family-select" class="sidebar-select">
+                <option value="Inter">Inter (Default)</option>
+                <option value="Lato">Lato</option>
+                <option value="'Fira Code'">Fira Code</option>
+                <option value="Georgia">Georgia</option>
+                <option value="Arial">Arial</option>
+            </select>
+        </div>
+
+        <div class="sidebar-section">
+            <p class="sidebar-label">Font Size</p>
+            <div class="size-btns">
+                <button class="size-btn" data-size="13">S</button>
+                <button class="size-btn active" data-size="15">M</button>
+                <button class="size-btn" data-size="17">L</button>
+            </div>
+        </div>
+
+        <div class="sidebar-section">
+            <p class="sidebar-label">Row Density</p>
+            <div class="size-btns">
+                <button class="density-btn" data-density="compact">Compact</button>
+                <button class="density-btn active" data-density="normal">Normal</button>
+                <button class="density-btn" data-density="relaxed">Relaxed</button>
+            </div>
+        </div>
+
+        <div class="sidebar-section">
+            <p class="sidebar-label">Accent Color</p>
+            <div class="accent-swatches">
+                <div class="swatch active" data-accent="#2e7d32" style="background:#2e7d32" title="Green"></div>
+                <div class="swatch" data-accent="#1976D2" style="background:#1976D2" title="Blue"></div>
+                <div class="swatch" data-accent="#7c3aed" style="background:#7c3aed" title="Violet"></div>
+                <div class="swatch" data-accent="#db2777" style="background:#db2777" title="Pink"></div>
+                <div class="swatch" data-accent="#ea580c" style="background:#ea580c" title="Orange"></div>
+                <div class="swatch" data-accent="#0891b2" style="background:#0891b2" title="Cyan"></div>
+            </div>
+        </div>
+
+        <div class="sidebar-section">
+            <p class="sidebar-label">Row Hover Effects</p>
+            <label class="toggle-switch">
+                <input type="checkbox" id="anim-toggle" checked>
+                <span class="toggle-track"></span>
+                <span class="toggle-label">Enabled</span>
+            </label>
+        </div>
+
+        <div class="sidebar-section">
+            <p class="sidebar-label">Compact Dates</p>
+            <label class="toggle-switch">
+                <input type="checkbox" id="compact-date-toggle">
+                <span class="toggle-track"></span>
+                <span class="toggle-label">Short format</span>
+            </label>
+        </div>
+    </aside>
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+    <!-- ── TOPBAR ── -->
+    <div class="topbar">
+        <span class="topbar-title">📋 Task Manager</span>
+        <button class="settings-trigger" id="settings-trigger">⚙ Settings</button>
+    </div>
+
+    <!-- ── MAIN ── -->
+    <div class="main-wrap">
+
+        <!-- Auth Card -->
+        <div class="auth-card" id="auth-card">
+            <h2 class="auth-heading">Welcome back</h2>
+            <p class="auth-sub">Sign in to manage your tasks</p>
+            <div id="auth-section">
+                <input type="email" id="email" placeholder="Email address">
+                <input type="password" id="password" placeholder="Password">
+                <button id="login-btn" class="primary-btn">Login</button>
+                <button id="register-btn" class="secondary-btn">Register</button>
+            </div>
+        </div>
+
+        <!-- Task Section -->
         <div id="task-section" style="display:none;">
-            <button id="open-modal-btn" class="add-btn">+ Create New Task</button>
-
-            <!-- Column header row -->
-            <div class="task-header-row">
-                <span class="col-num">#</span>
-                <span class="col-title">Title</span>
-                <span class="col-info"></span>
-                <span class="col-created">Created</span>
-                <span class="col-deadline">Deadline</span>
-                <span class="col-priority">Priority</span>
-                <span class="col-del"></span>
-                <span class="col-check">Done</span>
+            <div class="task-toolbar">
+                <button id="open-modal-btn" class="add-btn">+ Create New Task</button>
             </div>
 
-            <ul id="task-list"></ul>
+            <div class="table-wrap">
+                <!-- Header — 8 columns matching task rows (no description col) -->
+                <div class="task-header-row">
+                    <span class="col-num">#</span>
+                    <span class="col-title">Title</span>
+                    <span class="col-info"></span>
+                    <span class="col-created">Created</span>
+                    <span class="col-deadline">Deadline</span>
+                    <span class="col-priority">Priority</span>
+                    <span class="col-del"></span>
+                    <span class="col-check">Done</span>
+                </div>
+                <ul id="task-list"></ul>
+            </div>
+
             <button id="logout-btn" class="logout-btn">Logout</button>
         </div>
     </div>
 
-    <!-- MODAL -->
+    <!-- ── MODAL ── -->
     <div id="taskModal" class="modal">
         <div class="modal-content">
             <h2>New Task</h2>
-
             <div class="modal-field">
                 <label>Title</label>
                 <input type="text" id="task-title" placeholder="What needs to be done?">
             </div>
-
             <div class="modal-field">
                 <label>Description</label>
                 <textarea id="task-desc" placeholder="Add a description..."></textarea>
             </div>
-
             <div class="modal-field">
                 <label>Created at</label>
-                <input type="text" id="task-created-display" readonly style="opacity:0.6; cursor:default;">
+                <input type="text" id="task-created-display" readonly style="opacity:0.6;cursor:default;">
             </div>
-
             <div class="modal-field">
                 <label>Deadline</label>
                 <input type="datetime-local" id="task-deadline">
             </div>
-
             <div class="modal-field">
                 <label>Priority</label>
                 <select id="task-priority">
@@ -76,7 +163,6 @@
                     <option value="high">High</option>
                 </select>
             </div>
-
             <div class="modal-buttons">
                 <button id="save-task-btn" class="primary-btn">Save Task</button>
                 <button id="cancel-modal-btn" class="cancel-btn">Cancel</button>
@@ -87,3 +173,4 @@
     <script src="./script.js"></script>
 </body>
 </html>
+
