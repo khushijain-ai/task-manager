@@ -41,27 +41,32 @@ async function register() {
     }
 
     try {
+        console.log("Attempting to register:", email);
+        // Added a trailing slash or removed it to match your FastAPI router exactly
         const response = await fetch(`${API_URL}/register`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                email: email,
+                email: email, // Matches UserCreate schema
                 password: password
             })
         });
 
         const data = await response.json();
+        console.log("Server Response:", data);
 
         if (response.ok) {
             alert("Registration successful! You can now login.");
         } else {
-            alert("Registration failed: " + (data.detail || "Unknown error"));
+            // This will tell us if it's a 422 (validation error) or 400
+            alert("Registration failed: " + JSON.stringify(data.detail));
         }
     } catch (error) {
-        console.error("Error:", error);
-        alert("Could not connect to the server.");
+        console.error("Connection Error:", error);
+        alert("Could not connect to the server. Check your Internet or Render URL.");
     }
 }
 
