@@ -17,21 +17,25 @@ function closeModal() {
 async function login() {
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
+    
+    // FastAPI OAuth2 expects 'username' and 'password' in FormData
     const formData = new FormData();
-    formData.append('username', email);
+    formData.append('username', email); 
     formData.append('password', password);
 
-    try {
-        const response = await fetch(`${API_URL}/login`, { method: 'POST', body: formData });
-        if (response.ok) {
-            const data = await response.json();
-            token = data.access_token;
-            localStorage.setItem("token", token);
-            showTasks();
-        } else {
-            alert("Login failed! Check credentials.");
-        }
-    } catch (e) { console.error(e); }
+    const response = await fetch(`${API_URL}/login`, { 
+        method: 'POST', 
+        body: formData 
+    });
+    
+    if (response.ok) {
+        const data = await response.json();
+        token = data.access_token;
+        localStorage.setItem("token", token);
+        showTasks();
+    } else {
+        alert("Login failed! Check your email and password.");
+    }
 }
 
 async function register() {
