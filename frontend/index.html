@@ -25,20 +25,57 @@
 
         <div id="task-section" style="display:none;">
             <button id="open-modal-btn" class="add-btn">+ Create New Task</button>
+
+            <!-- Column header row -->
+            <div class="task-header-row">
+                <span class="col-num">#</span>
+                <span class="col-title">Title</span>
+                <span class="col-info"></span>
+                <span class="col-desc">Description</span>
+                <span class="col-created">Created</span>
+                <span class="col-deadline">Deadline</span>
+                <span class="col-priority">Priority</span>
+                <span class="col-del"></span>
+                <span class="col-check">Done</span>
+            </div>
+
             <ul id="task-list"></ul>
             <button id="logout-btn" class="logout-btn">Logout</button>
         </div>
     </div>
 
+    <!-- MODAL -->
     <div id="taskModal" class="modal">
         <div class="modal-content">
-            <h2>Add New Task</h2>
-            <input type="text" id="task-title" placeholder="What needs to be done?">
-            <textarea id="task-desc" placeholder="Add a description..."></textarea>
+            <h2>New Task</h2>
 
             <div class="modal-field">
-                <label>Deadline:</label>
+                <label>Title</label>
+                <input type="text" id="task-title" placeholder="What needs to be done?">
+            </div>
+
+            <div class="modal-field">
+                <label>Description</label>
+                <textarea id="task-desc" placeholder="Add a description..."></textarea>
+            </div>
+
+            <div class="modal-field">
+                <label>Created at</label>
+                <input type="text" id="task-created-display" readonly style="opacity:0.6; cursor:default;">
+            </div>
+
+            <div class="modal-field">
+                <label>Deadline</label>
                 <input type="datetime-local" id="task-deadline">
+            </div>
+
+            <div class="modal-field">
+                <label>Priority</label>
+                <select id="task-priority">
+                    <option value="low">Low</option>
+                    <option value="medium" selected>Medium</option>
+                    <option value="high">High</option>
+                </select>
             </div>
 
             <div class="modal-buttons">
