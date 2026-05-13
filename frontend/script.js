@@ -1,40 +1,196 @@
 const API_URL = "https://task-manager-1-ft8i.onrender.com";
 let token = localStorage.getItem("token");
+let useCompactDates = false;
 
-// --- TOAST ---
+// ── TOAST ──────────────────────────────────────────────────────
 function showToast(message, type = "info") {
     let container = document.getElementById("toast-container");
     if (!container) {
         container = document.createElement("div");
         container.id = "toast-container";
-        container.style.cssText = "position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;";
+        container.style.cssText = "position:fixed;top:72px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;";
         document.body.appendChild(container);
     }
-    const colors = { success: "#2d6a4f", error: "#c0392b", info: "#1a6fa8", warning: "#b7791f" };
+    const colors = { success:"#2d6a4f", error:"#c0392b", info:"#1a6fa8", warning:"#b7791f" };
     const toast = document.createElement("div");
-    toast.style.cssText = `background:${colors[type]||colors.info};color:#fff;padding:10px 18px;border-radius:8px;font-size:13px;font-weight:500;box-shadow:0 4px 16px rgba(0,0,0,.18);max-width:280px;`;
+    toast.style.cssText = `background:${colors[type]||colors.info};color:#fff;padding:10px 18px;border-radius:8px;font-size:13px;font-weight:500;box-shadow:0 4px 16px rgba(0,0,0,.18);max-width:300px;`;
     toast.textContent = message;
     container.appendChild(toast);
-    setTimeout(() => { toast.style.cssText += "opacity:0;transition:opacity .3s;"; setTimeout(() => toast.remove(), 350); }, 3000);
+    setTimeout(() => {
+        toast.style.cssText += "opacity:0;transition:opacity .3s;";
+        setTimeout(() => toast.remove(), 350);
+    }, 3000);
 }
 
-// --- DOM READY ---
+// ── DOM READY ──────────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", () => {
-    document.querySelectorAll(".theme-btn").forEach(btn =>
-        btn.addEventListener("click", () => setTheme(btn.dataset.theme))
-    );
+    // Auth
     document.getElementById("login-btn").addEventListener("click", login);
     document.getElementById("register-btn").addEventListener("click", register);
     document.getElementById("logout-btn").addEventListener("click", logout);
+
+    // Task
     document.getElementById("open-modal-btn").addEventListener("click", openModal);
     document.getElementById("cancel-modal-btn").addEventListener("click", closeModal);
     document.getElementById("save-task-btn").addEventListener("click", createTask);
 
-    setTheme(localStorage.getItem("theme") || "light");
+    // Sidebar open/close
+    document.getElementById("settings-trigger").addEventListener("click", openSidebar);
+    document.getElementById("sidebar-close").addEventListener("click", closeSidebar);
+    document.getElementById("sidebar-overlay").addEventListener("click", closeSidebar);
+
+    // Theme buttons
+    document.querySelectorAll(".theme-opt").forEach(btn =>
+        btn.addEventListener("click", () => {
+            setTheme(btn.dataset.theme);
+            document.querySelectorAll(".theme-opt").forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+        })
+    );
+
+    // Font family
+    document.getElementById("font-family-select").addEventListener("change", e => {
+        setFont(e.target.value);
+    });
+
+    // Font size
+    document.querySelectorAll(".size-btn").forEach(btn =>
+        btn.addEventListener("click", () => {
+            document.querySelectorAll(".size-btn").forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+            setFontSize(btn.dataset.size);
+        })
+    );
+
+    // Row density
+    document.querySelectorAll(".density-btn").forEach(btn =>
+        btn.addEventListener("click", () => {
+            document.querySelectorAll(".density-btn").forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+            setDensity(btn.dataset.density);
+        })
+    );
+
+    // Accent swatches
+    document.querySelectorAll(".swatch").forEach(sw =>
+        sw.addEventListener("click", () => {
+            document.querySelectorAll(".swatch").forEach(s => s.classList.remove("active"));
+            sw.classList.add("active");
+            setAccent(sw.dataset.accent);
+        })
+    );
+
+    // Animations toggle
+    document.getElementById("anim-toggle").addEventListener("change", e => {
+        document.body.classList.toggle("no-anim", !e.target.checked);
+        localStorage.setItem("anim", e.target.checked ? "1" : "0");
+    });
+
+    // Compact dates toggle
+    document.getElementById("compact-date-toggle").addEventListener("change", e => {
+        useCompactDates = e.target.checked;
+        localStorage.setItem("compactDates", useCompactDates ? "1" : "0");
+        if (token) showTasks(); // re-render with new date format
+    });
+
+    // Restore saved settings
+    restoreSettings();
+
     if (token) showTasks();
 });
 
-// --- MODAL ---
+// ── SIDEBAR ───────────────────────────────────────────────────
+function openSidebar() {
+    document.getElementById("sidebar").classList.add("open");
+    document.getElementById("sidebar-overlay").classList.add("open");
+}
+function closeSidebar() {
+    document.getElementById("sidebar").classList.remove("open");
+    document.getElementById("sidebar-overlay").classList.remove("open");
+}
+
+// ── SETTINGS ─────────────────────────────────────────────────
+function setTheme(name) {
+    document.documentElement.setAttribute("data-theme", name);
+    localStorage.setItem("theme", name);
+}
+
+function setFont(family) {
+    document.documentElement.style.setProperty("--font", family);
+    localStorage.setItem("font", family);
+}
+
+function setFontSize(size) {
+    document.documentElement.style.setProperty("--font-size", size + "px");
+    localStorage.setItem("fontSize", size);
+}
+
+function setDensity(density) {
+    document.documentElement.setAttribute("data-density", density);
+    localStorage.setItem("density", density);
+}
+
+function setAccent(color) {
+    document.documentElement.style.setProperty("--accent", color);
+    localStorage.setItem("accent", color);
+}
+
+function restoreSettings() {
+    // Theme
+    const theme = localStorage.getItem("theme") || "light";
+    setTheme(theme);
+    document.querySelectorAll(".theme-opt").forEach(b => {
+        if (b.dataset.theme === theme) b.classList.add("active");
+    });
+
+    // Font
+    const font = localStorage.getItem("font");
+    if (font) {
+        setFont(font);
+        document.getElementById("font-family-select").value = font;
+    }
+
+    // Font size
+    const fontSize = localStorage.getItem("fontSize");
+    if (fontSize) {
+        setFontSize(fontSize);
+        document.querySelectorAll(".size-btn").forEach(b => {
+            b.classList.toggle("active", b.dataset.size === fontSize);
+        });
+    }
+
+    // Density
+    const density = localStorage.getItem("density") || "normal";
+    setDensity(density);
+    document.querySelectorAll(".density-btn").forEach(b => {
+        b.classList.toggle("active", b.dataset.density === density);
+    });
+
+    // Accent
+    const accent = localStorage.getItem("accent");
+    if (accent) {
+        setAccent(accent);
+        document.querySelectorAll(".swatch").forEach(s => {
+            s.classList.toggle("active", s.dataset.accent === accent);
+        });
+    }
+
+    // Animations
+    const anim = localStorage.getItem("anim");
+    if (anim === "0") {
+        document.body.classList.add("no-anim");
+        document.getElementById("anim-toggle").checked = false;
+    }
+
+    // Compact dates
+    const cd = localStorage.getItem("compactDates");
+    if (cd === "1") {
+        useCompactDates = true;
+        document.getElementById("compact-date-toggle").checked = true;
+    }
+}
+
+// ── MODAL ─────────────────────────────────────────────────────
 function openModal() {
     document.getElementById("taskModal").style.display = "flex";
     const now = new Date();
@@ -51,7 +207,7 @@ function closeModal() {
     document.getElementById("task-priority").value = "medium";
 }
 
-// --- AUTH ---
+// ── AUTH ──────────────────────────────────────────────────────
 async function login() {
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
@@ -59,11 +215,12 @@ async function login() {
     fd.append("username", email);
     fd.append("password", password);
     try {
-        const res = await fetch(`${API_URL}/login`, { method: "POST", body: fd });
+        const res = await fetch(`${API_URL}/login`, { method:"POST", body:fd });
         if (res.ok) {
             const data = await res.json();
             token = data.access_token;
             localStorage.setItem("token", token);
+            document.getElementById("auth-card").style.display = "none";
             showTasks();
         } else {
             showToast("Login failed! Check your email and password.", "error");
@@ -77,8 +234,8 @@ async function register() {
     if (!email || !password) { showToast("Please fill in both fields.", "warning"); return; }
     try {
         const res = await fetch(`${API_URL}/register`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
+            method:"POST",
+            headers:{ "Content-Type":"application/json" },
             body: JSON.stringify({ email, password })
         });
         const data = await res.json();
@@ -88,30 +245,25 @@ async function register() {
     } catch { showToast("Could not connect to server.", "error"); }
 }
 
-// SESSION EXPIRED — clears token and returns to login view
 function handleUnauthorized() {
     showToast("Session expired. Please log in again.", "warning");
     localStorage.removeItem("token");
     token = null;
-    document.getElementById("auth-section").style.display = "block";
+    document.getElementById("auth-card").style.display = "block";
     document.getElementById("task-section").style.display = "none";
 }
 
-// --- SHOW TASKS ---
+// ── SHOW TASKS ────────────────────────────────────────────────
 async function showTasks() {
-    document.getElementById("auth-section").style.display = "none";
+    document.getElementById("auth-card").style.display = "none";
     document.getElementById("task-section").style.display = "block";
     try {
         const res = await fetch(`${API_URL}/tasks`, {
-            headers: { Authorization: `Bearer ${token}` }
+            headers:{ Authorization:`Bearer ${token}` }
         });
-
-        // ✅ FIX 1: catch 401 before doing anything with the body
         if (res.status === 401) { handleUnauthorized(); return; }
 
         const tasks = await res.json();
-
-        // ✅ FIX 2: guard against error objects (e.g. {"detail":"..."})
         if (!Array.isArray(tasks)) {
             showToast("Unexpected server response.", "error");
             console.error("Expected array, got:", tasks);
@@ -129,33 +281,35 @@ async function showTasks() {
         tasks.forEach((task, idx) => {
             const now = new Date();
             const deadline = new Date(task.deadline);
-            const isOverdue = !task.completed && deadline < now;
+            const isOverdue = !task.completed && task.deadline && deadline < now;
             const priority = task.priority || "medium";
-            const priorityLabel = { high: "High", medium: "Med", low: "Low" }[priority];
-            const priorityClass = { high: "priority-high", medium: "priority-med", low: "priority-low" }[priority];
+            const priorityLabel = { high:"High", medium:"Med", low:"Low" }[priority];
+            const priorityClass = { high:"priority-high", medium:"priority-med", low:"priority-low" }[priority];
 
-            // Checkbox: ✕ if overdue, ✓ if complete, empty otherwise
             let cbInner = "";
             let cbClass = "custom-checkbox";
-            if (isOverdue)        { cbInner = "✕"; cbClass += " overdue"; }
-            else if (task.completed) { cbInner = "✓"; cbClass += " checked"; }
+            if (isOverdue)          { cbInner = "✕"; cbClass += " overdue"; }
+            else if (task.completed){ cbInner = "✓"; cbClass += " checked"; }
 
             const li = document.createElement("li");
             li.className = `task-row${task.completed ? " completed" : ""}${isOverdue ? " is-overdue" : ""}`;
+
+            // 8 columns: # | title | i | created | deadline | priority | del | done
             li.innerHTML = `
                 <span class="col-num">${idx + 1}</span>
                 <span class="col-title task-title-cell">${escHtml(task.title)}</span>
                 <button class="info-btn toggle-details col-info" data-id="${task.id}" title="Show details">i</button>
-                <span class="col-desc task-desc-preview">${escHtml(truncate(task.description || "—", 30))}</span>
-                <span class="col-created task-meta">${fmtDate(task.created_at)}</span>
+                <span class="col-created">${fmtDate(task.created_at)}</span>
                 <span class="col-deadline${isOverdue ? " overdue-text" : ""}">${fmtDate(task.deadline)}</span>
-                <span class="${priorityClass} priority-badge col-priority">${priorityLabel}</span>
-                <button class="del-btn delete-task col-del" data-id="${task.id}" title="Delete">🗑</button>
-                <div class="${cbClass} col-check"
-                     data-id="${task.id}"
-                     data-completed="${task.completed}"
-                     data-title="${escAttr(task.title)}"
-                     title="${isOverdue ? "Overdue — click to mark complete" : task.completed ? "Mark incomplete" : "Mark complete"}">${cbInner}</div>
+                <span class="col-priority"><span class="${priorityClass} priority-badge">${priorityLabel}</span></span>
+                <span class="col-del"><button class="del-btn delete-task" data-id="${task.id}" title="Delete">🗑</button></span>
+                <span class="col-check">
+                    <div class="${cbClass}"
+                         data-id="${task.id}"
+                         data-completed="${task.completed}"
+                         data-title="${escAttr(task.title)}"
+                         title="${isOverdue ? "Overdue" : task.completed ? "Mark incomplete" : "Mark complete"}">${cbInner}</div>
+                </span>
                 <div id="desc-${task.id}" class="task-detail-panel" style="display:none;">
                     <p>${escHtml(task.description || "No description provided.")}</p>
                     <div class="detail-meta-row">
@@ -168,6 +322,8 @@ async function showTasks() {
             list.appendChild(li);
         });
 
+        // Use one delegated listener (remove old one first)
+        list.removeEventListener("click", handleTaskClick);
         list.addEventListener("click", handleTaskClick);
 
     } catch (err) {
@@ -185,25 +341,22 @@ function handleTaskClick(e) {
         const panel = document.getElementById(`desc-${infoBtn.dataset.id}`);
         if (panel) panel.style.display = panel.style.display === "none" ? "block" : "none";
     }
-    if (delBtn) deleteTask(delBtn.dataset.id);
-    if (checkbox) {
-        const { id, completed, title } = checkbox.dataset;
-        toggleComplete(id, completed === "true", title);
-    }
+    if (delBtn)   deleteTask(delBtn.dataset.id);
+    if (checkbox) toggleComplete(checkbox.dataset.id, checkbox.dataset.completed === "true", checkbox.dataset.title);
 }
 
-// --- CRUD ---
+// ── CRUD ──────────────────────────────────────────────────────
 async function createTask() {
-    const title = document.getElementById("task-title").value.trim();
+    const title       = document.getElementById("task-title").value.trim();
     const description = document.getElementById("task-desc").value.trim();
-    const deadline = document.getElementById("task-deadline").value;
-    const priority = document.getElementById("task-priority").value;
+    const deadline    = document.getElementById("task-deadline").value;
+    const priority    = document.getElementById("task-priority").value;
     if (!title) { showToast("Please enter a task title.", "warning"); return; }
     try {
         const res = await fetch(`${API_URL}/tasks`, {
-            method: "POST",
-            headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-            body: JSON.stringify({ title, description, deadline, priority, completed: false })
+            method:"POST",
+            headers:{ Authorization:`Bearer ${token}`, "Content-Type":"application/json" },
+            body: JSON.stringify({ title, description, deadline, priority, completed:false })
         });
         if (res.status === 401) { handleUnauthorized(); return; }
         if (!res.ok) { showToast("Failed to create task.", "error"); return; }
@@ -216,9 +369,9 @@ async function createTask() {
 async function toggleComplete(id, currentStatus, title) {
     try {
         const res = await fetch(`${API_URL}/tasks/${id}`, {
-            method: "PUT",
-            headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-            body: JSON.stringify({ completed: !currentStatus, title })
+            method:"PUT",
+            headers:{ Authorization:`Bearer ${token}`, "Content-Type":"application/json" },
+            body: JSON.stringify({ completed:!currentStatus, title })
         });
         if (res.status === 401) { handleUnauthorized(); return; }
         showTasks();
@@ -228,8 +381,8 @@ async function toggleComplete(id, currentStatus, title) {
 async function deleteTask(id) {
     try {
         const res = await fetch(`${API_URL}/tasks/${id}`, {
-            method: "DELETE",
-            headers: { Authorization: `Bearer ${token}` }
+            method:"DELETE",
+            headers:{ Authorization:`Bearer ${token}` }
         });
         if (res.status === 401) { handleUnauthorized(); return; }
         showToast("Task deleted.", "info");
@@ -237,19 +390,18 @@ async function deleteTask(id) {
     } catch { showToast("Failed to delete task.", "error"); }
 }
 
-// --- THEME & LOGOUT ---
-function setTheme(name) {
-    document.documentElement.setAttribute("data-theme", name);
-    localStorage.setItem("theme", name);
-}
 function logout() { localStorage.clear(); location.reload(); }
 
-// --- HELPERS ---
+// ── HELPERS ───────────────────────────────────────────────────
 function fmtDate(str) {
     if (!str) return "—";
     const d = new Date(str);
-    return isNaN(d) ? "—" : d.toLocaleString(undefined, { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
+    if (isNaN(d)) return "—";
+    if (useCompactDates) {
+        return d.toLocaleDateString(undefined, { day:"2-digit", month:"short" })
+             + " " + d.toLocaleTimeString(undefined, { hour:"2-digit", minute:"2-digit" });
+    }
+    return d.toLocaleString(undefined, { day:"2-digit", month:"short", year:"numeric", hour:"2-digit", minute:"2-digit" });
 }
-function truncate(s, n) { return s.length > n ? s.slice(0, n) + "…" : s; }
 function escHtml(s) { return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
 function escAttr(s) { return String(s).replace(/"/g,"&quot;").replace(/'/g,"&#39;"); }
