@@ -30,7 +30,51 @@ async function login() {
         showTasks();
     } else { alert("Login failed!"); }
 }
+async function register() {
+    const emailField = document.getElementById('email');
+    const passwordField = document.getElementById('password');
 
+    if (!emailField || !passwordField) {
+        alert("Frontend Error: Email or Password input fields missing in HTML.");
+        return;
+    }
+
+    const email = emailField.value;
+    const password = passwordField.value;
+
+    if (!email || !password) {
+        alert("Please fill in both fields");
+        return;
+    }
+
+    try {
+        console.log("Sending registration to:", `${API_URL}/register`);
+        const response = await fetch(`${API_URL}/register`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                email: email,
+                password: password
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            alert("Registration successful! You can now login.");
+            emailField.value = '';
+            passwordField.value = '';
+        } else {
+            // This shows you exactly why the backend rejected it (e.g., "User already exists")
+            alert("Registration failed: " + (data.detail || JSON.stringify(data)));
+        }
+    } catch (error) {
+        console.error("Connection Error:", error);
+        alert("Could not connect to the server. Please check your Render URL.");
+    }
+}
 // --- TASK CRUD ---
 async function showTasks() {
     document.getElementById('auth-section').style.display = 'none';
@@ -117,52 +161,9 @@ const savedTheme = localStorage.getItem('theme') || 'light';
 setTheme(savedTheme);
 if (token) showTasks();
 
-async function register() {
-    const emailField = document.getElementById('email');
-    const passwordField = document.getElementById('password');
 
-    if (!emailField || !passwordField) {
-        console.error("Email or Password fields not found in HTML");
-        return;
-    }
 
-    const email = emailField.value;
-    const password = passwordField.value;
-
-    if (!email || !password) {
-        alert("Please fill in both fields");
-        return;
-    }
-
-    try {
-        const response = await fetch(`${API_URL}/register`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                email: email,
-                password: password
-            })
-        });
-
-        const data = await response.json();
-
-        if (response.ok) {
-            alert("Registration successful! You can now login.");
-            // Optional: Clear fields after success
-            emailField.value = '';
-            passwordField.value = '';
-        } else {
-            // This captures the 422 error or "User already exists"
-            alert("Registration failed: " + (data.detail || "Invalid data"));
-            console.log("Error details:", data);
-        }
-    } catch (error) {
-        console.error("Connection Error:", error);
-        alert("Could not connect to the server.");
-    }
-}
-
-// CRITICAL: Make sure the function is available globally for the HTML onclick
+// THIS IS THE MOST IMPORTANT LINE:
 window.register = register;
+window.login = login;
+
