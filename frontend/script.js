@@ -31,6 +31,40 @@ async function login() {
     } else { alert("Login failed!"); }
 }
 
+async function register() {
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+
+    if (!email || !password) {
+        alert("Please fill in both fields");
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_URL}/register`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                email: email,
+                password: password
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            alert("Registration successful! You can now login.");
+        } else {
+            alert("Registration failed: " + (data.detail || "Unknown error"));
+        }
+    } catch (error) {
+        console.error("Error:", error);
+        alert("Could not connect to the server.");
+    }
+}
+
 // --- TASK CRUD ---
 async function showTasks() {
     document.getElementById('auth-section').style.display = 'none';
