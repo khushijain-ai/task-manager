@@ -12,18 +12,12 @@
 }
 
 * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; transition: 0.3s; }
-body { background: var(--bg-color); color: var(--text-color); display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; margin: 0; padding: 24px 16px; }
+body { background: var(--bg-color); color: var(--text-color); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
 
 .container { 
     background: var(--card-bg); padding: 2rem; border-radius: 12px; 
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2); width: 100%; max-width: 960px; 
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2); width: 100%; max-width: 450px; 
     text-align: center; /* Centers the Heading */
-}
-
-/* Auth section keeps a narrow width */
-#auth-section {
-    max-width: 400px;
-    margin: 0 auto;
 }
 
 /* Base Button Styles */
@@ -48,7 +42,12 @@ button {
     margin: 20px 0;
 }
 
-#task-section {
+.task-item { 
+    background: rgba(128,128,128,0.1); 
+    margin-bottom: 10px; 
+    padding: 15px; 
+    border-radius: 8px; 
+    list-style: none;
     text-align: left;
 }
 
@@ -100,7 +99,9 @@ input, textarea { width: 100%; padding: 12px; margin-bottom: 15px; border-radius
     border-radius: 4px;
     font-size: 0.9em;
 }
-/* ── TASK ROW LAYOUT ──────────────────────────────────────── */
+/* Hide inline description — shown only in the detail panel */
+.col-desc { display: none; }
+
 /* Add these rules to your existing style.css                  */
 
 #task-list {
@@ -115,17 +116,16 @@ input, textarea { width: 100%; padding: 12px; margin-bottom: 15px; border-radius
 .task-row {
     display: grid;
     grid-template-columns:
-        32px          /* # */
-        minmax(80px, 1fr)  /* title */
-        28px          /* i */
-        minmax(80px, 1.2fr) /* description */
-        110px         /* created */
-        110px         /* deadline */
-        54px          /* priority */
-        32px          /* delete */
-        40px;         /* checkbox */
+        36px          /* # */
+        1fr           /* title */
+        32px          /* i */
+        130px         /* created */
+        130px         /* deadline */
+        60px          /* priority */
+        36px          /* delete */
+        44px;         /* checkbox */
     align-items: center;
-    gap: 0 8px;
+    gap: 0 10px;
     padding: 8px 12px;
     border-bottom: 1px solid var(--border-color, #e5e7eb);
 }
