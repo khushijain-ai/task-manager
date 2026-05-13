@@ -113,15 +113,11 @@ async function showTasks() {
             li.className = "task-item";
             li.innerHTML = `
                 <div class="task-main">
-                    <div class="task-content-wrapper">
-                        <input type="checkbox" ${task.completed ? "checked" : ""}
-                            data-id="${task.id}" data-completed="${task.completed}" data-title="${task.title}" class="toggle-complete">
-                        <span style="${task.completed ? "text-decoration: line-through;" : ""}">${task.title}</span>
-                    </div>
-                    <div class="action-btns">
-                        <button data-id="${task.id}" class="info-btn toggle-details">i</button>
-                        <button data-id="${task.id}" class="del-btn delete-task">🗑️</button>
-                    </div>
+                    <input type="checkbox" ${task.completed ? "checked" : ""}
+                        data-id="${task.id}" data-completed="${task.completed}" data-title="${task.title}" class="toggle-complete">
+                    <span style="${task.completed ? "text-decoration: line-through;" : ""}">${task.title}</span>
+                    <button data-id="${task.id}" class="info-btn toggle-details">i</button>
+                    <button data-id="${task.id}" class="del-btn delete-task">🗑️</button>
                 </div>
                 <div id="desc-${task.id}" class="task-details" style="display:none;">
                     <p>${task.description || "No description"}</p>
